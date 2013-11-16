@@ -85,7 +85,7 @@ sub plot {
   }
 
   #use PDL::Graphics::PGPLOT; dev('/XSERVE'); line($osc);
-  use PDL::Graphics::Gnuplot; gplot($osc); sleep 100000;
+  use PDL::Graphics::Gnuplot; gplot($osc, { terminal => 'x11' }); sleep 100000;
 
   return $self;
 }
