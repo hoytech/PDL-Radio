@@ -118,22 +118,10 @@ sub psk {
   return $self->_psk(0, @_);
 }
 
-sub _psk {
-  my ($self, $play, $freq, $msg) = @_;
+sub psk_raw {
+  my ($self, $play, $freq, $bits, $num_bits) = @_;
 
   my $output = sequence(0) if !$play;
-
-  my $bits;
-  my $num_bits = 2;
-
-  foreach my $char (split //, $msg) {
-    my $symbol = $PDL::Sound::Varicode::table->[ord($char)];
-    foreach my $bit (split //, $symbol) {
-      vec($bits, $num_bits, 1) = $bit;
-      $num_bits++;
-    }
-    $num_bits += 2;
-  }
 
   my $symbol_dur = 0.032; # PSK-31
   my $symbol_samples = $symbol_dur * $self->{sample_rate};
@@ -170,6 +158,26 @@ sub _psk {
   } else {
     return $output;
   }
+}
+
+sub _psk {
+  my ($self, $play, $freq, $msg) = @_;
+
+  my $bits;
+  my $num_bits = 32;
+
+  foreach my $char (split //, $msg) {
+    my $symbol = $PDL::Sound::Varicode::table->[ord($char)];
+    foreach my $bit (split //, $symbol) {
+      vec($bits, $num_bits, 1) = $bit;
+      $num_bits++;
+    }
+    $num_bits += 2;
+  }
+
+  vec($bits, $num_bits++, 1) = 1 for (1..32);
+
+  return $self->psk_raw($play, $freq, $bits, $num_bits);
 }
 
 
