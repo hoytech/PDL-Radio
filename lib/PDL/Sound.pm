@@ -129,10 +129,12 @@ sub _psk {
     my $symbol = $PDL::Sound::Varicode::table->[ord($char)];
     foreach my $bit (split //, $symbol) {
       vec($bits, $num_bits, 1) = $bit;
-      $num_bits++; # and two zero bits
+      $num_bits++;
     }
     $num_bits += 2;
   }
+
+  my $raised_cosine_filter = cos(2 * PI * sequence(256) / 256) * 0.5 + 0.5;
 
   my $current_phase = 0;
 
@@ -142,16 +144,13 @@ sub _psk {
     my $dur = 0.032;
 
     if (vec($bits, $i, 1)) {
+      $osc = $self->sine($dur, $freq, $current_phase);
+    } else {
       $osc = $self->sine($dur/2, $freq, $current_phase)->append($self->sine($dur/2, $freq, $current_phase + PI))
-             * 0.5 * cos(sequence(256) * PI / 256) + 0.5;
+             * $raised_cosine_filter;
 
       $current_phase += PI;
-    } else {
-      $osc = $self->sine($dur, $freq, $current_phase) * 0.5 + 0.5;
     }
-
-    $osc -= .5;
-    $osc *= 2;
 
     if ($play) {
       $self->play_raw($osc);
@@ -192,6 +191,9 @@ PDL::Sound - Sound interface for PDL::Sound
 
     ## Plot 5 periods of a sawtooth wave:
     PDL::Sound->new->plot("sawtooth", 5, 1);
+
+    ## Play PSK-31 encoded message
+    PDL::Sound->new->play("psk", 1000, "hello world!");
 
 =head1 DESCRIPTION
 
