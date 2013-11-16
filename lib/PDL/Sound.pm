@@ -80,7 +80,8 @@ sub plot {
     $osc = $self->$first(@args);
   }
 
-  use PDL::Graphics::PGPLOT; dev('/XSERVE'); line($osc);
+  #use PDL::Graphics::PGPLOT; dev('/XSERVE'); line($osc);
+  use PDL::Graphics::Gnuplot; gplot($osc); sleep 100000;
 
   return $self;
 }
