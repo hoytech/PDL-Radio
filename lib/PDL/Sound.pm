@@ -135,12 +135,12 @@ sub _psk {
     $num_bits += 2;
   }
 
-  my $symbol_len = 256; # psk31
-  my $symbol_dur = $symbol_len / $self->{sample_rate};
+  my $symbol_dur = 0.032; # PSK-31
+  my $symbol_samples = $symbol_dur * $self->{sample_rate};
 
   my $current_phase = 0;
 
-  my $raised_cosine_filter = cos(2 * PI * sequence(256) / 256) * 0.5 + 0.5;
+  my $raised_cosine_filter = cos(2 * PI * sequence($symbol_samples) / $symbol_samples) * 0.5 + 0.5;
 
   for my $i (0 .. $num_bits) {
     my $osc;
