@@ -135,22 +135,27 @@ sub _psk {
     $num_bits += 2;
   }
 
-  my $raised_cosine_filter = cos(2 * PI * sequence(256) / 256) * 0.5 + 0.5;
+  my $symbol_len = 256; # psk31
+  my $symbol_dur = $symbol_len / $self->{sample_rate};
 
   my $current_phase = 0;
+
+  my $raised_cosine_filter = cos(2 * PI * sequence(256) / 256) * 0.5 + 0.5;
 
   for my $i (0 .. $num_bits) {
     my $osc;
 
-    my $dur = 0.032;
-
     if (vec($bits, $i, 1)) {
-      $osc = $self->sine($dur, $freq, $current_phase);
-    } else {
-      $osc = $self->sine($dur/2, $freq, $current_phase)->append($self->sine($dur/2, $freq, $current_phase + PI))
-             * $raised_cosine_filter;
+      $osc = $self->sine($symbol_dur, $freq, $current_phase);
 
-      $current_phase += PI;
+      $current_phase += 2*PI*$symbol_dur*$freq;
+    } else {
+      $osc = $self->sine($symbol_dur/2, $freq, $current_phase)
+                  ->append($self->sine($symbol_dur/2, $freq, $current_phase + (PI*$symbol_dur*$freq) + PI));
+
+      $osc *= $raised_cosine_filter;
+
+      $current_phase += PI + (2*PI*$symbol_dur*$freq);
     }
 
     if ($play) {
