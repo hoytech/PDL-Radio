@@ -9,6 +9,7 @@ use PDL;
 
 use PDL::Sound::Varicode;
 use PDL::Sound::MorseCode;
+use PDL::Sound::Baudot;
 
 
 require Exporter;
@@ -62,6 +63,9 @@ sub play {
       return;
     } elsif ($first eq 'cw') {
       $self->_cw(1, @args);
+      return;
+    } elsif ($first eq 'rtty') {
+      $self->_rtty(1, @args);
       return;
     } else {
       $osc = $self->$first(@args);
@@ -198,12 +202,6 @@ sub _cw {
 
   my $output = sequence(0) if !$play;
 
-  #X     word/min
-  #X/60  word/sec
-  #60/X  sec/word
-  #1/50  word/sym
-  #60/(X*50)
-
   my $symlen = 60 / ($wpm * 50); ## A "standard" word is 50 elements long (ie "PARIS")
 
   foreach my $char (split //, $msg) {
@@ -241,6 +239,67 @@ sub _cw {
 }
 
 
+sub rtty {
+  my $self = shift;
+  return $self->_rtty(0, @_);
+}
+
+sub _rtty {
+  my ($self, $play, $freq, $msg) = @_;
+
+  $msg = uc $msg;
+
+  my $output = sequence(0) if !$play;
+
+  my $baud = 45.45;
+  my $freq_shift = 170;
+  my $symlen = 1 / ($baud + 0.5);
+
+  my $current_phase1 = 0;
+  my $current_phase2 = 0;
+
+  foreach my $char (split //, $msg) {
+    my $osc = sequence(0);
+
+    $osc = $osc->append($self->sine($symlen, $freq, $current_phase1)); ## start bit
+    $current_phase1 += 2*PI*$symlen*$freq;
+    $current_phase2 += 2*PI*$symlen*$freq;
+
+    my $bits = $PDL::Sound::Baudot::letters_lookup->{$char};
+    $bits = 0 if !defined $char;
+
+    for (1..5) {
+      my $bit = $bits & 1;
+      $bits >>= 1;
+
+      if ($bit) {
+        $osc = $osc->append($self->sine($symlen, $freq + $freq_shift, $current_phase2));
+        $current_phase1 += 2*PI*$symlen*($freq + $freq_shift);
+        $current_phase2 += 2*PI*$symlen*($freq + $freq_shift);
+      } else {
+        $osc = $osc->append($self->sine($symlen, $freq, $current_phase1));
+        $current_phase1 += 2*PI*$symlen*$freq;
+        $current_phase2 += 2*PI*$symlen*$freq;
+      }
+    }
+
+    $osc = $osc->append($self->sine($symlen * 1.5, $freq + $freq_shift, $current_phase1)); ## stop bit
+    $current_phase1 += 2*PI*($symlen * 1.5)*($freq + $freq_shift);
+    $current_phase2 += 2*PI*($symlen * 1.5)*($freq + $freq_shift);
+
+    if ($play) {
+      $self->play_raw($osc);
+    } else {
+      $output = $output->append($osc);
+    }
+  }
+
+  if ($play) {
+    return $self;
+  } else {
+    return $output;
+  }
+}
 
 
 
