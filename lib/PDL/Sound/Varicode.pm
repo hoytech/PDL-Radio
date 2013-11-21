@@ -2,7 +2,7 @@ package PDL::Sound::Varicode;
 
 use common::sense;
 
-## Table from adapted from fldigi
+## Table adapted from fldigi
 
 our $table = [
 	"1010101011",		#   0 - <NUL>
