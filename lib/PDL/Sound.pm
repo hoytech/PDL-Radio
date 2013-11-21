@@ -253,6 +253,8 @@ sub _rtty {
 
   my $baud = 45.45;
   my $freq_shift = 170;
+  my $stop_bit_len = 1.5;
+
   my $symlen = 1 / ($baud + 0.5);
 
   my $current_phase1 = 0;
@@ -283,9 +285,9 @@ sub _rtty {
       }
     }
 
-    $osc = $osc->append($self->sine($symlen * 1.5, $freq + $freq_shift, $current_phase1)); ## stop bit
-    $current_phase1 += 2*PI*($symlen * 1.5)*($freq + $freq_shift);
-    $current_phase2 += 2*PI*($symlen * 1.5)*($freq + $freq_shift);
+    $osc = $osc->append($self->sine($symlen * $stop_bit_len, $freq + $freq_shift, $current_phase2)); ## stop bit
+    $current_phase1 += 2*PI*($symlen * $stop_bit_len)*($freq + $freq_shift);
+    $current_phase2 += 2*PI*($symlen * $stop_bit_len)*($freq + $freq_shift);
 
     if ($play) {
       $self->play_raw($osc);
