@@ -6,7 +6,7 @@ use base qw(PDL::Radio::Sound);
 
 use PDL;
 use PDL::Radio;
-use PDL::Radio::MorseCode;
+use PDL::Radio::Code::Morse;
 
 
 sub new {
