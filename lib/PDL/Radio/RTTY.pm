@@ -32,9 +32,11 @@ sub render {
   my ($self, $cb) = @_;
 
   my $freq = $self->{freq};
+  my $freq_shift = 170;
+  my $freq1 = $freq - ($freq_shift / 2);
+  my $freq2 = $freq + ($freq_shift / 2);
 
   my $baud = 45.45;
-  my $freq_shift = 170;
   my $stop_bit_len = 1.5;
 
   my $symlen = 1 / ($baud + 0.5);
@@ -45,9 +47,9 @@ sub render {
   foreach my $char (split //, $self->{msg}) {
     my $osc = sequence(0);
 
-    $osc = $osc->append($self->sine($symlen, $freq, $current_phase1)); ## start bit
-    $current_phase1 += 2*PI*$symlen*$freq;
-    $current_phase2 += 2*PI*$symlen*$freq;
+    $osc = $osc->append($self->sine($symlen, $freq1, $current_phase1)); ## start bit
+    $current_phase1 += 2*PI*$symlen*$freq1;
+    $current_phase2 += 2*PI*$symlen*$freq1;
 
     my $bits = $PDL::Radio::Code::Baudot::letters_lookup->{$char};
     $bits = 0 if !defined $char;
@@ -57,19 +59,19 @@ sub render {
       $bits >>= 1;
 
       if ($bit) {
-        $osc = $osc->append($self->sine($symlen, $freq + $freq_shift, $current_phase2));
-        $current_phase1 += 2*PI*$symlen*($freq + $freq_shift);
-        $current_phase2 += 2*PI*$symlen*($freq + $freq_shift);
+        $osc = $osc->append($self->sine($symlen, $freq2, $current_phase2));
+        $current_phase1 += 2*PI*$symlen*($freq2);
+        $current_phase2 += 2*PI*$symlen*($freq2);
       } else {
-        $osc = $osc->append($self->sine($symlen, $freq, $current_phase1));
-        $current_phase1 += 2*PI*$symlen*$freq;
-        $current_phase2 += 2*PI*$symlen*$freq;
+        $osc = $osc->append($self->sine($symlen, $freq1, $current_phase1));
+        $current_phase1 += 2*PI*$symlen*$freq1;
+        $current_phase2 += 2*PI*$symlen*$freq1;
       }
     }
 
-    $osc = $osc->append($self->sine($symlen * $stop_bit_len, $freq + $freq_shift, $current_phase2)); ## stop bit
-    $current_phase1 += 2*PI*($symlen * $stop_bit_len)*($freq + $freq_shift);
-    $current_phase2 += 2*PI*($symlen * $stop_bit_len)*($freq + $freq_shift);
+    $osc = $osc->append($self->sine($symlen * $stop_bit_len, $freq2, $current_phase2)); ## stop bit
+    $current_phase1 += 2*PI*($symlen * $stop_bit_len)*($freq2);
+    $current_phase2 += 2*PI*($symlen * $stop_bit_len)*($freq2);
 
     $cb->($osc);
   }
