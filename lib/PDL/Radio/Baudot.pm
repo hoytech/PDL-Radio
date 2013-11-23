@@ -1,4 +1,4 @@
-package PDL::Sound::Baudot;
+package PDL::Radio::Baudot;
 
 use common::sense;
 

@@ -1,4 +1,4 @@
-package PDL::Sound::MorseCode;
+package PDL::Radio::MorseCode;
 
 use common::sense;
 

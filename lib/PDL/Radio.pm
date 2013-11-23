@@ -1,4 +1,4 @@
-package PDL::Sound;
+package PDL::Radio;
 
 use common::sense;
 
@@ -7,9 +7,9 @@ our $VERSION = '0.001';
 
 use PDL;
 
-use PDL::Sound::Varicode;
-use PDL::Sound::MorseCode;
-use PDL::Sound::Baudot;
+use PDL::Radio::Varicode;
+use PDL::Radio::MorseCode;
+use PDL::Radio::Baudot;
 
 
 require Exporter;
@@ -175,7 +175,7 @@ sub _psk {
   my $num_bits = 32;
 
   foreach my $char (split //, $msg) {
-    my $symbol = $PDL::Sound::Varicode::table->[ord($char)];
+    my $symbol = $PDL::Radio::Varicode::table->[ord($char)];
     foreach my $bit (split //, $symbol) {
       vec($bits, $num_bits, 1) = $bit;
       $num_bits++;
@@ -205,7 +205,7 @@ sub _cw {
   my $symlen = 60 / ($wpm * 50); ## A "standard" word is 50 elements long (ie "PARIS")
 
   foreach my $char (split //, $msg) {
-    my $code = $PDL::Sound::MorseCode::table->{$char};
+    my $code = $PDL::Radio::MorseCode::table->{$char};
     $code = ' ' if !defined $code;
 
     my $osc = sequence(0);
@@ -267,7 +267,7 @@ sub _rtty {
     $current_phase1 += 2*PI*$symlen*$freq;
     $current_phase2 += 2*PI*$symlen*$freq;
 
-    my $bits = $PDL::Sound::Baudot::letters_lookup->{$char};
+    my $bits = $PDL::Radio::Baudot::letters_lookup->{$char};
     $bits = 0 if !defined $char;
 
     for (1..5) {
@@ -315,22 +315,22 @@ __END__
 
 =head1 NAME
 
-PDL::Sound - Sound interface for PDL::Sound
+PDL::Radio - Amateur radio system built on PDL
 
 =head1 SYNOPSIS
 
     ## Play 1000 Hz sine wave for 5 seconds:
-    PDL::Sound->new->play("sine", 5, 1000);
+    PDL::Radio->new->play("sine", 5, 1000);
 
     ## Play .5 seconds of a sine wave, phase shift 180 degrees, play another .5:
-    PDL::Sound->new->play("sine", .5, 1000)
+    PDL::Radio->new->play("sine", .5, 1000)
                    ->play("sine", .5, 1000, PI);
 
     ## Plot 5 periods of a sawtooth wave:
-    PDL::Sound->new->plot("sawtooth", 5, 1);
+    PDL::Radio->new->plot("sawtooth", 5, 1);
 
     ## Play PSK-31 encoded message
-    PDL::Sound->new->play("psk", 1000, "hello world!");
+    PDL::Radio->new->play("psk", 1000, "hello world!");
 
 =head1 DESCRIPTION
 
@@ -338,7 +338,7 @@ This is a work-in-progress library for generating sound data and playing it thro
 
 =head1 SEE ALSO
 
-L<The PDL::Sound github repo|https://github.com/hoytech/PDL-Sound>
+L<The PDL::Radio github repo|https://github.com/hoytech/PDL-Radio>
 
 L<PDL::Audio> is very similar to this module except that it interfaces to sndlib where this module interfaces to pulseaudio. L<PDL::Audio> is a pain to setup and I couldn't figure out how to send data to fldigi. Also, L<Pulse::Audio> doesn't seem to be on CPAN anymore?
 

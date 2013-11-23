@@ -7,4 +7,4 @@ README.pod
 blib/
 pm_to_blib
 MYMETA.*
-PDL-Sound.*tar[.]gz$
+PDL-Radio.*tar[.]gz$

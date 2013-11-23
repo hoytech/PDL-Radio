@@ -1,4 +1,4 @@
-package PDL::Sound::Varicode;
+package PDL::Radio::Varicode;
 
 use common::sense;
 
