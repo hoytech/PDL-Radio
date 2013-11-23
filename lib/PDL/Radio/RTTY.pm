@@ -49,7 +49,7 @@ sub render {
     $current_phase1 += 2*PI*$symlen*$freq;
     $current_phase2 += 2*PI*$symlen*$freq;
 
-    my $bits = $PDL::Radio::Baudot::letters_lookup->{$char};
+    my $bits = $PDL::Radio::Code::Baudot::letters_lookup->{$char};
     $bits = 0 if !defined $char;
 
     for (1..5) {

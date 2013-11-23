@@ -39,7 +39,7 @@ sub render {
   my $symlen = 60 / ($self->{wpm} * 50); ## A "standard" word is 50 elements long (ie "PARIS")
 
   foreach my $char (split //, $self->{msg}) {
-    my $code = $PDL::Radio::MorseCode::table->{$char};
+    my $code = $PDL::Radio::Code::Morse::table->{$char};
     $code = ' ' if !defined $code;
 
     my $osc = sequence(0);

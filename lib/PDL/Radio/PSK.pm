@@ -53,7 +53,7 @@ sub encode_msg {
   $self->{num_bits} += 32;
 
   foreach my $char (split //, $self->{msg}) {
-    my $symbol = $PDL::Radio::Varicode::table->[ord($char)];
+    my $symbol = $PDL::Radio::Code::Varicode::table->[ord($char)];
     foreach my $bit (split //, $symbol) {
       vec($self->{bits}, $self->{num_bits}, 1) = $bit;
       $self->{num_bits}++;
