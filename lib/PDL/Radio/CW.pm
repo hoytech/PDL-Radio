@@ -38,6 +38,13 @@ sub render {
 
   my $symlen = 60 / ($self->{wpm} * 50); ## A "standard" word is 50 elements long (ie "PARIS")
 
+  # minimum gaussian shaping:
+  my $dit_shaper = $self->sine($symlen, 1/(2*$symlen));
+  my $dah_shaper = $self->sine($symlen * 3, 1/(2*3*$symlen));
+  # no shaping:
+  #my $dit_shaper = 1;
+  #my $dah_shaper = 1;
+
   foreach my $char (split //, $self->{msg}) {
     my $code = $PDL::Radio::Code::Morse::table->{$char};
     $code = ' ' if !defined $code;
@@ -46,10 +53,10 @@ sub render {
 
     foreach my $sym (split //, $code) {
       if ($sym eq '.') {
-        $osc = $osc->append($self->sine($symlen, $freq))
+        $osc = $osc->append($self->sine($symlen, $freq) * $dit_shaper)
                    ->append($self->sine($symlen, $freq) * 0);
       } elsif ($sym eq '-') {
-        $osc = $osc->append($self->sine($symlen * 3, $freq))
+        $osc = $osc->append($self->sine($symlen * 3, $freq) * $dah_shaper)
                    ->append($self->sine($symlen, $freq) * 0);
       } else {
         $osc = $osc->append($self->sine($symlen * 2, $freq) * 0);
