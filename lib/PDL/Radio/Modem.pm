@@ -10,7 +10,6 @@ sub init {
   my ($self) = @_;
 
   $self->{sample_rate} //= 8000;
-  $self->{volume} //= 5000;
 }
 
 

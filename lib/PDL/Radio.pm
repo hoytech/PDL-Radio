@@ -8,11 +8,11 @@ require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(PI);
 
+sub PI () { 3.14159265358979 }
+
 
 use PDL::Radio::Player;
 
-
-sub PI () { 3.14159265358979 }
 
 
 our $DEFAULT_PLAYER;

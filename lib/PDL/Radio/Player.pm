@@ -11,8 +11,8 @@ sub new {
   my $self = \%args;
   bless $self, $class;
 
-  $self->{sample_rate} ||= 8000;
-  $self->{volume} ||= 5000;
+  $self->{sample_rate} //= 8000;
+  $self->{volume} //= 15000;
 
   open(my $fh, '|-:raw', "pacat --stream-name fldigi --format s16ne --rate $self->{sample_rate} --channels 1")
     || die "couldn't run pacat (install pulse-audio?): $!";
