@@ -25,15 +25,12 @@ sub new {
 
 
 sub play {
-  my ($self, $sound) = @_;
+  my ($self, $osc) = @_;
+
+  $osc *= $self->{volume};
 
   my $fh = $self->{fh};
-
-  $sound->render(sub {
-    my $osc = shift;
-    $osc *= $self->{volume};
-    print $fh ${ $osc->convert(short)->get_dataref };
-  });
+  print $fh ${ $osc->convert(short)->get_dataref };
 
   return $self;
 }

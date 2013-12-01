@@ -1,4 +1,4 @@
-package PDL::Radio::Sound;
+package PDL::Radio::Modem;
 
 use common::sense;
 
@@ -38,13 +38,32 @@ sub sawtooth {
 
 
 
-sub append_sound {
-  my ($self, $osc) = @_;
+sub play {
+  my ($self, @args) = @_;
 
-  push @{ $self->{sound_fragments} }, $osc;
+  my $player = $self->{player} || PDL::Radio::default_player();
+
+  $self->render(@args, sub {
+    my $osc = shift;
+    $player->play($osc);
+  });
+
+  return $self;
 }
 
 
+sub get {
+  my ($self, @args) = @_;
+
+  my $osc = sequence(0);
+
+  $self->render(@args, sub {
+    my $osc_fragment = shift;
+    $osc = $osc->append($osc_fragment);
+  });
+
+  return $osc;
+}
 
 
 1;

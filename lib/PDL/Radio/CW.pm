@@ -2,7 +2,7 @@ package PDL::Radio::CW;
 
 use common::sense;
 
-use base qw(PDL::Radio::Sound);
+use base qw(PDL::Radio::Modem);
 
 use PDL;
 use PDL::Radio;
@@ -22,17 +22,15 @@ sub new {
   $self->{freq} //= 1000;
   $self->{wpm} //= 15;
 
-  die "must pass in a msg" if !defined $self->{msg};
-
-  $self->{msg} = uc $self->{msg};
-
   return $self;
 }
 
 
 
 sub render {
-  my ($self, $cb) = @_;
+  my ($self, $msg, $cb) = @_;
+
+  $msg = uc $msg;
 
   my $freq = $self->{freq};
 
@@ -45,7 +43,7 @@ sub render {
   #my $dit_shaper = 1;
   #my $dah_shaper = 1;
 
-  foreach my $char (split //, $self->{msg}) {
+  foreach my $char (split //, $msg) {
     my $code = $PDL::Radio::Code::Morse::table->{$char};
     $code = ' ' if !defined $code;
 

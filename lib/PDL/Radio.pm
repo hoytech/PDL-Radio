@@ -4,13 +4,23 @@ use common::sense;
 
 our $VERSION = '0.001';
 
-
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(PI);
 
 
+use PDL::Radio::Player;
+
+
 sub PI () { 3.14159265358979 }
+
+
+our $DEFAULT_PLAYER;
+
+sub default_player {
+  $DEFAULT_PLAYER ||= PDL::Radio::Player->new;
+  return $DEFAULT_PLAYER;
+}
 
 
 #use PDL::Graphics::PGPLOT; dev('/XSERVE'); line($osc);

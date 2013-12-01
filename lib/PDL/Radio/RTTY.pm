@@ -2,7 +2,7 @@ package PDL::Radio::RTTY;
 
 use common::sense;
 
-use base qw(PDL::Radio::Sound);
+use base qw(PDL::Radio::Modem);
 
 use PDL;
 use PDL::Radio;
@@ -19,17 +19,15 @@ sub new {
 
   $self->{freq} //= 1000;
 
-  die "must pass in a msg" if !defined $self->{msg};
-
-  $self->{msg} = uc $self->{msg};
-
   return $self;
 }
 
 
 
 sub render {
-  my ($self, $cb) = @_;
+  my ($self, $msg, $cb) = @_;
+
+  $msg = uc $msg;
 
   my $freq = $self->{freq};
   my $freq_shift = 170;
@@ -44,7 +42,7 @@ sub render {
   my $current_phase1 = 0;
   my $current_phase2 = 0;
 
-  foreach my $char (split //, $self->{msg}) {
+  foreach my $char (split //, $msg) {
     my $osc = sequence(0);
 
     $osc = $osc->append($self->sine($symlen, $freq1, $current_phase1)); ## start bit
