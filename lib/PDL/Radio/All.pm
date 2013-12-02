@@ -11,7 +11,18 @@ use PDL::Radio::Sawtooth;
 
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT = qw(PI);
+our @EXPORT = qw(PI plot);
+
+
+sub plot {
+  my $osc = shift;
+
+  require PDL::Graphics::Gnuplot;
+  PDL::Graphics::Gnuplot::gplot($osc, { terminal => 'x11' });
+
+  sleep 100000;
+}
+
 
 1;
 
