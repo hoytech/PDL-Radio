@@ -15,12 +15,11 @@ sub new {
   my $self = \%args;
   bless $self, $class;
 
-
   $self->init;
-
 
   $self->{freq} //= 1000;
   $self->{wpm} //= 15;
+  $self->{shape} //= 'hard';
 
   return $self;
 }
@@ -36,12 +35,17 @@ sub render {
 
   my $symlen = 60 / ($self->{wpm} * 50); ## A "standard" word is 50 elements long (ie "PARIS")
 
-  # minimum gaussian shaping:
-  my $dit_shaper = $self->sine($symlen, 1/(2*$symlen));
-  my $dah_shaper = $self->sine($symlen * 3, 1/(2*3*$symlen));
-  # no shaping:
-  #my $dit_shaper = 1;
-  #my $dah_shaper = 1;
+  my ($dit_shaper, $dah_shaper);
+
+  if ($self->{shape} eq 'min') {
+    $dit_shaper = $self->sine($symlen, 1/(2*$symlen));
+    $dah_shaper = $self->sine($symlen * 3, 1/(2*3*$symlen));
+  } elsif ($self->{shape} eq 'hard') {
+    $dit_shaper = 1;
+    $dah_shaper = 1;
+  } else {
+    die "unknown keying shape: $self->{shape}";
+  }
 
   foreach my $char (split //, $msg) {
     my $code = $PDL::Radio::Code::Morse::table->{$char};
