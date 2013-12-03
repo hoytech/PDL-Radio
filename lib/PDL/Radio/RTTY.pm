@@ -18,6 +18,9 @@ sub new {
   $self->init;
 
   $self->{freq} //= 1000;
+  $self->{freq_shift} //= 170;
+  $self->{baud} //= 45.45;
+  $self->{stop_bit_len} //= 1.5;
 
   return $self;
 }
@@ -30,12 +33,12 @@ sub render {
   $msg = uc $msg;
 
   my $freq = $self->{freq};
-  my $freq_shift = 170;
+  my $freq_shift = $self->{freq_shift};
   my $freq1 = $freq - ($freq_shift / 2);
   my $freq2 = $freq + ($freq_shift / 2);
 
-  my $baud = 45.45;
-  my $stop_bit_len = 1.5;
+  my $baud = $self->{baud};
+  my $stop_bit_len = $self->{stop_bit_len};
 
   my $symlen = 1 / ($baud + 0.5);
 
