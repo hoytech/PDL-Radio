@@ -19,7 +19,8 @@ sub new {
 
   $self->{freq} //= 1000;
   $self->{wpm} //= 15;
-  $self->{shape} //= 'hard';
+  $self->{shape} //= 'hanning';
+  $self->{risetime} //= 4;
 
   return $self;
 }
@@ -37,7 +38,18 @@ sub render {
 
   my ($dit_shaper, $dah_shaper);
 
-  if ($self->{shape} eq 'min') {
+  if ($self->{shape} eq 'hanning') {
+    my ($dit_len) = $self->sine($symlen, $freq)->dims;
+    my $dah_len = $dit_len * 3;
+
+    my $shape_len = $self->{risetime} * $self->{sample_rate} / 1000;
+    $shape_len = $dit_len/2 if $shape_len > $dit_len/2;
+
+    my $edge = (1 - cos(PI * sequence($shape_len) / $shape_len)) * 0.5;
+
+    $dit_shaper = $edge->append(ones($dit_len - $shape_len*2))->append($edge->slice("-1:0:-1"));
+    $dah_shaper = $edge->append(ones($dah_len - $shape_len*2))->append($edge->slice("-1:0:-1"));
+  } elsif ($self->{shape} eq 'min') {
     $dit_shaper = $self->sine($symlen, 1/(2*$symlen));
     $dah_shaper = $self->sine($symlen * 3, 1/(2*3*$symlen));
   } elsif ($self->{shape} eq 'hard') {
