@@ -65,7 +65,7 @@ sub render {
 
   my $current_phase = 0;
 
-  my $raised_cosine_filter = cos(2 * PI * sequence($symbol_samples) / $symbol_samples) * 0.5 + 0.5;
+  my $raised_cosine_filter = cos(PI * sequence($symbol_samples) / $symbol_samples) * 0.5 + 0.5;
 
   for my $i (0 .. ($num_bits-1)) {
     my $osc;
@@ -75,10 +75,8 @@ sub render {
 
       $current_phase += 2*PI*$symbol_dur*$self->{freq};
     } else {
-      $osc = $self->sine($symbol_dur/2, $self->{freq}, $current_phase)
-                  ->append($self->sine($symbol_dur/2, $self->{freq}, $current_phase + (PI*$symbol_dur*$self->{freq}) + PI));
-
-      $osc *= $raised_cosine_filter;
+      $osc = ($self->sine($symbol_dur, $self->{freq}, $current_phase) * $raised_cosine_filter) +
+             ($self->sine($symbol_dur, $self->{freq}, $current_phase + (PI*$symbol_dur*$self->{freq}) + PI) * (1 - $raised_cosine_filter));
 
       $current_phase += PI + (2*PI*$symbol_dur*$self->{freq});
     }
