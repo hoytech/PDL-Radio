@@ -67,7 +67,7 @@ sub render {
 
   my $raised_cosine_filter = cos(2 * PI * sequence($symbol_samples) / $symbol_samples) * 0.5 + 0.5;
 
-  for my $i (0 .. $num_bits) {
+  for my $i (0 .. ($num_bits-1)) {
     my $osc;
 
     if (vec($bits, $i, 1)) {
