@@ -9,6 +9,9 @@ use PDL::Radio;
 use PDL::Radio::Code::Baudot;
 
 
+## FIXME: Softer keying!
+
+
 sub new {
   my ($class, %args) = @_;
 
@@ -32,6 +35,9 @@ sub render {
 
   $msg = uc $msg;
 
+  ## Hack: Use \x01 for FIGS and \x02 for LTRS
+  $msg =~ s/([^A-Z\r\n ]+)/\x01$1\x02/g;
+
   my $freq = $self->{freq};
   my $freq_shift = $self->{freq_shift};
   my $freq1 = $freq - ($freq_shift / 2);
@@ -52,8 +58,11 @@ sub render {
     $current_phase1 += 2*PI*$symlen*$freq1;
     $current_phase2 += 2*PI*$symlen*$freq1;
 
-    my $bits = $PDL::Radio::Code::Baudot::letters_lookup->{$char};
-    $bits = 0 if !defined $char;
+    my $bits = $PDL::Radio::Code::Baudot::letters_lookup->{$char} //
+               $PDL::Radio::Code::Baudot::figures_lookup->{$char} //
+               ($char eq "\x01" ? $PDL::Radio::Code::Baudot::letters_lookup->{FIGS} :
+                $char eq "\x02" ? $PDL::Radio::Code::Baudot::letters_lookup->{LTRS} :
+                0);
 
     for (1..5) {
       my $bit = $bits & 1;
